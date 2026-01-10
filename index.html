@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dale Saúde - Agendamento Rápido</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              dale: {
+                main: '#0056D2',      // Primary Blue (Brand Color)
+                secondary: '#00A86B', // Secondary Green (Was Primary)
+                dark: '#003366',      // Dark Blue Text
+                light: '#F0F7FF',     // Light Blue BG
+                accent: '#E8F5E9',    // Light Green BG
+                orange: '#FF6B35',    // CTA Urgency
+                text: '#212121',      // Soft Black
+                gray: '#64748B',      // Slate Gray
+                bg: '#F8FAFC',        // Cool Gray BG
+                footer: '#0F172A'     // Dark Navy Footer
+              }
+            },
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+              heading: ['Poppins', 'sans-serif'],
+            },
+            boxShadow: {
+              'subtle': '0 4px 25px rgba(0,86,210,0.08)',
+              'glow': '0 0 20px rgba(0,86,210,0.15)',
+            },
+            animation: {
+              'float': 'float 6s ease-in-out infinite',
+              'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+              'fade-in-up': 'fadeInUp 0.8s ease-out forwards',
+              'tap-hint': 'tapHint 2s infinite',
+            },
+            keyframes: {
+              float: {
+                '0%, 100%': { transform: 'translateY(0)' },
+                '50%': { transform: 'translateY(-15px)' },
+              },
+              fadeInUp: {
+                '0%': { opacity: '0', transform: 'translateY(20px)' },
+                '100%': { opacity: '1', transform: 'translateY(0)' },
+              },
+              tapHint: {
+                '0%, 100%': { transform: 'scale(1)', opacity: '0.5' },
+                '50%': { transform: 'scale(0.9)', opacity: '1' },
+              }
+            }
+          }
+        }
+      }
+    </script>
+    
+    <style>
+      body {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        scroll-behavior: smooth;
+        background-color: #fff;
+      }
+      /* Custom Scrollbar */
+      ::-webkit-scrollbar {
+        width: 10px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #f1f1f1;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #94a3b8;
+        border-radius: 5px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #64748b;
+      }
+    </style>
+
+    <!-- React & Babel Import Map -->
+    <script type="importmap">
+    {
+      "imports": {
+        "react": "https://esm.sh/react@18.2.0",
+        "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
+        "lucide-react": "https://esm.sh/lucide-react@0.263.1"
+      }
+    }
+    </script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  </head>
+  <body class="text-dale-text font-sans">
+    <div id="root"></div>
+
+    <script type="text/babel" data-type="module">
+      import React, { useState, useEffect, useRef } from 'react';
+      import { createRoot } from 'react-dom/client';
+      import { 
+        Menu, X, Phone, User, MessageCircle, ArrowRight, Clock, 
+        ShieldCheck, CheckCircle2, Users, Star, Stethoscope, 
+        MessageSquare, Calendar, CheckCircle, Heart, Brain, Baby, 
+        Activity, FlaskConical, Instagram, MapPin, Mail, Minus, Plus,
+        Linkedin, Facebook, Sparkles, Hand, CreditCard, Percent, Bell
+      } from 'lucide-react';
+
+      // --- UTILS & CONSTANTS ---
+      const WHATSAPP_NUMBER = "552135256618";
+      const WHATSAPP_DISPLAY = "(21) 3525-6618";
+      const WHATSAPP_LINK = `https://wa.me/${WHATSAPP_NUMBER}?text=Ol%C3%A1%2C%20gostaria%20de%20agendar%20uma%20consulta`;
+      const ADDRESS_LINK = "https://maps.app.goo.gl/NSv3NrnYuo9KXnoEA";
+      
+      // Custom TikTok Icon
+      const TikTokIcon = ({ size = 24, className = "" }) => (
+        <svg 
+          width={size} 
+          height={size} 
+          viewBox="0 0 24 24" 
+          fill="none" 
+          stroke="currentColor" 
+          strokeWidth="2" 
+          strokeLinecap="round" 
+          strokeLinejoin="round" 
+          className={className}
+        >
+          <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5" />
+        </svg>
+      );
+
+      // --- COMPONENTS ---
+
+      // 1. Button
+      const Button = ({
+        variant = 'primary',
+        size = 'md',
+        icon: Icon,
+        fullWidth = false,
+        className = '',
+        children,
+        href,
+        ...props
+      }) => {
+        const baseStyles = "inline-flex items-center justify-center rounded-xl font-medium transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed";
+        
+        const variants = {
+          primary: "bg-dale-main text-white hover:bg-dale-dark shadow-lg hover:shadow-blue-500/30",
+          secondary: "bg-dale-secondary text-white hover:bg-opacity-90 shadow-lg hover:shadow-green-500/30",
+          outline: "border-2 border-dale-main text-dale-main hover:bg-dale-light",
+          text: "text-dale-gray hover:text-dale-main bg-transparent hover:bg-gray-100",
+          whatsapp: "bg-[#25D366] text-white hover:bg-[#128C7E] shadow-lg hover:shadow-green-500/30"
+        };
+
+        const sizes = {
+          sm: "px-4 py-2 text-sm",
+          md: "px-6 py-3 text-base",
+          lg: "px-8 py-4 text-lg font-bold"
+        };
+
+        const Component = href ? 'a' : 'button';
+        const linkProps = href ? { href, target: href.startsWith('http') ? '_blank' : undefined, rel: href.startsWith('http') ? 'noopener noreferrer' : undefined } : {};
+
+        return (
+          <Component 
+            className={`
+              ${baseStyles} 
+              ${variants[variant]} 
+              ${sizes[size]} 
+              ${fullWidth ? 'w-full' : ''} 
+              ${className}
+            `}
+            {...linkProps}
+            {...props}
+          >
+            {Icon && <Icon className={`mr-2 ${size === 'lg' ? 'w-6 h-6' : 'w-5 h-5'}`} />}
+            {children}
+          </Component>
+        );
+      };
+
+      // 2. Header
+      const Header = () => {
+        const [isScrolled, setIsScrolled] = useState(false);
+        const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+        useEffect(() => {
+          const handleScroll = () => setIsScrolled(window.scrollY > 20);
+          window.addEventListener('scroll', handleScroll);
+          return () => window.removeEventListener('scroll', handleScroll);
+        }, []);
+
+        const navLinks = [
+          { name: 'Home', href: '#' },
+          { name: 'Consultas', href: '#consultas' },
+          { name: 'Ultrassonografias', href: '#ultrassom' },
+          { name: 'Check-up', href: '#checkup' },
+          { name: 'Sobre Nós', href: '#sobre' },
+        ];
+
+        return (
+          <header 
+            className={`sticky top-0 z-50 w-full transition-all duration-300 ${
+              isScrolled ? 'bg-white/95 backdrop-blur-md shadow-md py-3' : 'bg-white/50 backdrop-blur-sm py-5'
+            }`}
+          >
+            <div className="container mx-auto px-4 flex items-center justify-between">
+              {/* Logo */}
+              <a href="#" className="flex items-center gap-2 group">
+                <div className="w-10 h-10 bg-dale-main rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg group-hover:scale-110 transition-transform">
+                  D
+                </div>
+                <span className={`text-2xl font-heading font-bold tracking-tight text-dale-dark`}>
+                  Dale<span className="text-dale-main">Saúde</span>
+                </span>
+              </a>
+
+              {/* Desktop Nav */}
+              <nav className="hidden lg:flex items-center gap-8">
+                {navLinks.map((link) => (
+                  <a 
+                    key={link.name} 
+                    href={link.href}
+                    className="text-dale-gray hover:text-dale-main font-medium transition-colors text-sm uppercase tracking-wide"
+                  >
+                    {link.name}
+                  </a>
+                ))}
+              </nav>
+
+              {/* Desktop CTA */}
+              <div className="hidden lg:flex items-center gap-4">
+                <div className="hidden xl:flex flex-col items-end text-right mr-2">
+                  <span className="text-xs text-dale-gray">Central de Atendimento</span>
+                  <span className="font-bold text-dale-dark text-sm">{WHATSAPP_DISPLAY}</span>
+                </div>
+                <Button variant="whatsapp" size="sm" icon={Phone} href={WHATSAPP_LINK}>
+                  Agendar Agora
+                </Button>
+              </div>
+
+              {/* Mobile Menu Toggle */}
+              <button 
+                className="lg:hidden p-2 text-dale-dark hover:bg-dale-light rounded-lg transition-colors"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              >
+                {mobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
+              </button>
+            </div>
+
+            {/* Mobile Menu */}
+            {mobileMenuOpen && (
+              <div className="absolute top-full left-0 w-full bg-white shadow-xl py-6 px-4 lg:hidden flex flex-col gap-4 border-t border-gray-100 animate-fade-in-up">
+                 {navLinks.map((link) => (
+                  <a 
+                    key={link.name} 
+                    href={link.href}
+                    className="text-dale-dark font-medium text-lg py-3 border-b border-gray-50 px-2 active:bg-dale-light rounded-lg"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    {link.name}
+                  </a>
+                ))}
+                <Button variant="whatsapp" fullWidth icon={MessageCircle} className="mt-4" href={WHATSAPP_LINK}>
+                  Agendar via WhatsApp
+                </Button>
+              </div>
+            )}
+          </header>
+        );
+      };
+
+      // 3. Hero
+      const Hero = () => {
+        return (
+          <section className="relative pt-12 pb-20 lg:pt-20 lg:pb-32 overflow-hidden bg-gradient-to-br from-dale-light via-white to-white">
+            {/* Background decoration */}
+            <div className="absolute top-0 right-0 w-1/2 h-full opacity-[0.03] pointer-events-none" 
+                 style={{backgroundImage: "url('data:image/svg+xml,%3Csvg width=\"60\" height=\"60\" viewBox=\"0 0 60 60\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Cg fill=\"none\" fill-rule=\"evenodd\"%3E%3Cg fill=\"%23000000\" fill-opacity=\"1\"%3E%3Cpath d=\"M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')"}}>
+            </div>
+
+            <div className="container mx-auto px-4">
+              <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
+                
+                {/* Text Content */}
+                <div className="w-full lg:w-1/2 space-y-8 animate-fade-in-up z-10">
+                  <div className="inline-flex items-center gap-2 bg-blue-100 text-dale-main px-4 py-2 rounded-full text-sm font-semibold border border-blue-200">
+                    <Clock size={16} />
+                    <span>Agende sua consulta ou exame em 2 min</span>
+                  </div>
+
+                  <h1 className="font-heading text-4xl lg:text-5xl xl:text-6xl font-bold text-dale-dark leading-tight">
+                    Sua Saúde em Primeiro Lugar. <br />
+                    <span className="text-dale-main relative">
+                      Sem Burocracia.
+                      <svg className="absolute w-full h-3 -bottom-1 left-0 text-dale-secondary opacity-30" viewBox="0 0 100 10" preserveAspectRatio="none">
+                        <path d="M0 5 Q 50 10 100 5" stroke="currentColor" strokeWidth="8" fill="none" />
+                      </svg>
+                    </span>
+                  </h1>
+
+                  <p className="text-xl text-dale-gray font-light max-w-lg leading-relaxed">
+                    Consultas, exames e check-ups com agendamento rápido via WhatsApp. Atendimento humanizado e eficiente no coração da Tijuca.
+                  </p>
+                  
+                  {/* Service Pills */}
+                  <div className="flex flex-wrap gap-2">
+                    {['Consultas', 'Exames', 'Ultrassonografia', 'Check-up'].map((service) => (
+                      <span key={service} className="px-3 py-1 bg-white border border-gray-200 rounded-lg text-sm font-medium text-dale-gray shadow-sm">
+                        {service}
+                      </span>
+                    ))}
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row gap-4 pt-4">
+                    <Button variant="whatsapp" size="lg" icon={MessageCircle} className="animate-pulse-slow" href={WHATSAPP_LINK}>
+                      Agendar no WhatsApp
+                    </Button>
+                    <Button variant="outline" size="lg" icon={ArrowRight} href="#consultas">
+                      Ver Especialidades
+                    </Button>
+                  </div>
+
+                  <div className="pt-6 flex flex-wrap gap-6 text-sm text-dale-gray font-medium border-t border-gray-100">
+                    <span className="flex items-center gap-2">
+                      <CheckCircle2 size={18} className="text-dale-secondary" />
+                      Atendimento Humanizado
+                    </span>
+                    <span className="flex items-center gap-2">
+                      <CheckCircle2 size={18} className="text-dale-secondary" />
+                      Preço Justo
+                    </span>
+                  </div>
+                </div>
+
+                {/* Image Content */}
+                <div className="w-full lg:w-1/2 relative lg:h-[600px] flex items-center justify-center">
+                   <div className="relative z-10 rounded-[2rem] overflow-hidden shadow-2xl transform rotate-2 hover:rotate-0 transition-transform duration-500 border-4 border-white">
+                      <img 
+                        src="https://res.cloudinary.com/doqw5aqcf/image/upload/v1768056150/vista-frontal-sorridente-medica-e-paciente_htvir7.jpg" 
+                        alt="Médica sorrindo atendendo paciente"
+                        className="w-full max-w-[500px] h-auto object-cover" 
+                      />
+                      {/* Gradient Overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-dale-main/20 to-transparent"></div>
+                   </div>
+                   
+                   {/* Floating Badge */}
+                   <div className="absolute top-10 right-0 z-20 bg-white p-4 rounded-xl shadow-lg flex items-center gap-3 animate-float border border-gray-100">
+                      <div className="bg-dale-light p-3 rounded-full text-dale-main">
+                        <ShieldCheck size={24} />
+                      </div>
+                      <div>
+                        <p className="text-xs text-dale-gray uppercase tracking-wider font-bold">Confiança</p>
+                        <p className="font-bold text-dale-dark">Certificada</p>
+                      </div>
+                   </div>
+
+                   {/* Floating Badge 2 */}
+                   <div className="absolute bottom-20 -left-4 z-20 bg-white p-4 rounded-xl shadow-lg flex items-center gap-3 animate-float" style={{animationDelay: '1s'}}>
+                      <div className="bg-dale-accent p-3 rounded-full text-dale-secondary">
+                        <Star size={24} fill="currentColor" />
+                      </div>
+                      <div>
+                        <p className="font-bold text-dale-dark text-lg">4.9/5.0</p>
+                        <p className="text-xs text-dale-gray">Satisfação</p>
+                      </div>
+                   </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        );
+      };
+
+      // 4. Stats
+      const Stats = () => {
+        return (
+          <section className="bg-dale-main py-12 relative overflow-hidden">
+            <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
+            <div className="container mx-auto px-4 relative z-10">
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 text-white divide-x divide-white/10">
+                <div className="flex flex-col items-center text-center p-4">
+                  <Users size={32} className="mb-3 opacity-80" />
+                  <h3 className="text-4xl font-bold mb-1">15.000+</h3>
+                  <p className="text-blue-100 text-sm font-medium">Pacientes Atendidos</p>
+                </div>
+                <div className="flex flex-col items-center text-center p-4">
+                  <Star size={32} className="mb-3 opacity-80" />
+                  <h3 className="text-4xl font-bold mb-1">4.9/5.0</h3>
+                  <p className="text-blue-100 text-sm font-medium">Avaliação Média</p>
+                </div>
+                <div className="flex flex-col items-center text-center p-4">
+                  <Clock size={32} className="mb-3 opacity-80" />
+                  <h3 className="text-4xl font-bold mb-1">2min</h3>
+                  <p className="text-blue-100 text-sm font-medium">Tempo de Agendamento</p>
+                </div>
+                <div className="flex flex-col items-center text-center p-4">
+                  <Stethoscope size={32} className="mb-3 opacity-80" />
+                  <h3 className="text-4xl font-bold mb-1">20+</h3>
+                  <p className="text-blue-100 text-sm font-medium">Especialistas</p>
+                </div>
+              </div>
+            </div>
+          </section>
+        );
+      };
+
+      // 5. HowItWorks
+      const HowItWorks = () => {
+        return (
+          <section className="py-20 bg-dale-bg">
+            <div className="container mx-auto px-4 text-center">
+              <h2 className="text-3xl lg:text-4xl font-heading font-bold text-dale-dark mb-4">
+                Agendar é Rápido e Fácil
+              </h2>
+              <p className="text-dale-gray mb-16 max-w-2xl mx-auto">
+                Esqueça a espera no telefone. Na Dale Saúde, a tecnologia trabalha a seu favor.
+              </p>
+
+              <div className="relative grid md:grid-cols-3 gap-8">
+                {/* Connector Line (Desktop Only) */}
+                <div className="hidden md:block absolute top-12 left-[16%] right-[16%] h-1 bg-gray-200 z-0 rounded-full overflow-hidden">
+                   <div className="h-full bg-dale-secondary w-full origin-left transform scale-x-0 animate-[grow_1.5s_ease-out_forwards]"></div>
+                </div>
+
+                {[
+                  { icon: MessageSquare, title: "1. Envie uma Mensagem", desc: "Clique no botão WhatsApp. Nossa equipe ou IA te atende na hora." },
+                  { icon: Calendar, title: "2. Escolha o Horário", desc: "Flexibilidade total. Manhã, tarde ou sábado." },
+                  { icon: CheckCircle, title: "3. Consulta Confirmada", desc: "Você recebe o comprovante e lembretes automáticos." }
+                ].map((step, idx) => (
+                  <div key={idx} className="relative z-10 bg-white p-8 rounded-2xl shadow-subtle hover:shadow-xl hover:-translate-y-2 transition-all duration-300 border border-gray-100 group">
+                    <div className="w-20 h-20 bg-dale-light rounded-full flex items-center justify-center mx-auto mb-6 text-dale-main border-4 border-white shadow-sm group-hover:bg-dale-main group-hover:text-white transition-colors">
+                      <step.icon size={36} />
+                    </div>
+                    <h3 className="text-xl font-bold mb-3 text-dale-dark">{step.title}</h3>
+                    <p className="text-dale-gray text-sm leading-relaxed">{step.desc}</p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-12">
+                <Button variant="primary" size="lg" href={WHATSAPP_LINK}>
+                  Começar Agendamento
+                </Button>
+              </div>
+            </div>
+            <style>{`
+              @keyframes grow { to { transform: scaleX(1); } }
+            `}</style>
+          </section>
+        );
+      };
+
+      // 6. Dale+ (Interactive Phone)
+      const DalePlus = () => {
+        const [step, setStep] = useState(0);
+
+        const handleInteraction = () => {
+          setStep((prev) => (prev + 1) % 4);
+        };
+
+        const renderContent = () => {
+          switch(step) {
+            case 0: // Intro
+              return (
+                <div className="flex flex-col items-center justify-center h-full animate-fade-in-up">
+                   <div className="w-20 h-20 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center mb-6 shadow-xl border border-white/20">
+                       <span className="text-4xl font-bold text-white">D</span>
+                   </div>
+                   <span className="text-3xl font-heading font-bold text-white mb-2">Dale<span className="text-yellow-400">+</span></span>
+                   <p className="text-white/80 text-sm mb-8">O app da sua saúde.</p>
+                   <div className="mt-4 flex flex-col items-center animate-tap-hint">
+                      <Hand size={32} className="text-white mb-2" />
+                      <span className="text-xs uppercase tracking-widest text-white/70">Toque para descobrir</span>
+                   </div>
+                </div>
+              );
+            case 1: // Feature 1: Discounts
+              return (
+                <div className="flex flex-col items-center justify-center h-full animate-fade-in-up text-center px-6">
+                   <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mb-6 shadow-glow text-white">
+                       <Percent size={32} />
+                   </div>
+                   <h3 className="text-2xl font-bold text-white mb-2">Descontos Reais</h3>
+                   <p className="text-white/80 text-sm">Economize até 50% em exames e consultas na nossa rede.</p>
+                   <div className="mt-12 text-white/50 text-xs">Toque para continuar</div>
+                </div>
+              );
+            case 2: // Feature 2: Priority
+              return (
+                <div className="flex flex-col items-center justify-center h-full animate-fade-in-up text-center px-6">
+                   <div className="w-16 h-16 bg-dale-orange rounded-full flex items-center justify-center mb-6 shadow-glow text-white">
+                       <Star size={32} fill="currentColor" />
+                   </div>
+                   <h3 className="text-2xl font-bold text-white mb-2">Prioridade VIP</h3>
+                   <p className="text-white/80 text-sm">Atendimento preferencial e agendamento exclusivo para membros.</p>
+                   <div className="mt-12 text-white/50 text-xs">Toque para continuar</div>
+                </div>
+              );
+            case 3: // Final: Coming Soon
+              return (
+                <div className="flex flex-col items-center justify-center h-full animate-fade-in-up text-center px-6">
+                   <Sparkles size={48} className="text-yellow-400 mb-6" />
+                   <h3 className="text-3xl font-heading font-bold text-white mb-4">Em Breve</h3>
+                   <p className="text-white/80 text-sm mb-8">Estamos preparando algo incrível para você.</p>
+                   <button className="bg-white text-dale-dark px-6 py-2 rounded-full font-bold text-sm shadow-lg">
+                      Aguarde
+                   </button>
+                   <div className="mt-8 text-white/30 text-[10px] uppercase cursor-pointer hover:text-white" onClick={(e) => {e.stopPropagation(); setStep(0);}}>
+                      Reiniciar Tour
+                   </div>
+                </div>
+              );
+          }
+        };
+
+        return (
+          <section className="py-20 bg-[#0A1128] text-white overflow-hidden relative">
+            {/* Background Effects */}
+            <div className="absolute top-0 right-0 w-96 h-96 bg-dale-main rounded-full blur-[120px] opacity-20"></div>
+            <div className="absolute bottom-0 left-0 w-96 h-96 bg-dale-secondary rounded-full blur-[120px] opacity-20"></div>
+
+            <div className="container mx-auto px-4 relative z-10">
+              <div className="flex flex-col lg:flex-row items-center justify-between gap-12 bg-white/5 backdrop-blur-lg rounded-3xl p-8 lg:p-12 border border-white/10 shadow-2xl overflow-hidden">
+                <div className="w-full lg:w-1/2">
+                  <div className="inline-flex items-center gap-2 text-yellow-400 mb-4 font-bold tracking-widest text-sm uppercase">
+                    <Sparkles size={16} />
+                    Em Breve
+                  </div>
+                  <h2 className="text-4xl lg:text-5xl font-heading font-bold mb-6 leading-tight">
+                    Conheça o <span className="text-transparent bg-clip-text bg-gradient-to-r from-dale-main to-dale-secondary">Dale+</span>
+                  </h2>
+                  <p className="text-lg text-gray-300 mb-8 max-w-2xl">
+                    Uma nova forma de se cuidar, sem se preocupar se cabe no seu bolso. Em breve no ar o nosso 
+                    <strong className="text-white"> clube de vantagens da saúde</strong>. 
+                    Prioridade no atendimento, descontos exclusivos em exames e muito mais.
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <Button variant="secondary" href={WHATSAPP_LINK}>
+                      Entrar na Lista de Espera
+                    </Button>
+                  </div>
+                </div>
+                
+                {/* Interactive Phone Mockup */}
+                <div className="w-full lg:w-1/2 flex justify-center lg:justify-end relative">
+                   <div 
+                      className="relative mx-auto border-gray-900 bg-gray-900 border-[12px] rounded-[2.5rem] h-[500px] w-[280px] shadow-2xl flex flex-col items-center cursor-pointer transform hover:scale-[1.02] transition-transform duration-300 group"
+                      onClick={handleInteraction}
+                   >
+                        <div className="w-[120px] h-[20px] bg-gray-900 top-0 rounded-b-[1rem] absolute z-20"></div>
+                        <div className="h-[32px] w-[3px] bg-gray-800 absolute -left-[15px] top-[72px] rounded-l-lg"></div>
+                        <div className="h-[46px] w-[3px] bg-gray-800 absolute -left-[15px] top-[124px] rounded-l-lg"></div>
+                        <div className="h-[64px] w-[3px] bg-gray-800 absolute -right-[15px] top-[142px] rounded-r-lg"></div>
+                        
+                        <div className="rounded-[2rem] overflow-hidden w-full h-full bg-white relative">
+                            {/* App Screen Content */}
+                            <div className="absolute inset-0 bg-gradient-to-b from-dale-dark via-dale-main to-dale-secondary p-6">
+                                {/* Status Bar area spacer */}
+                                <div className="h-8 w-full"></div>
+                                
+                                {/* Progress Dots */}
+                                <div className="flex justify-center gap-2 mb-6 opacity-50">
+                                   {[0,1,2,3].map(i => (
+                                     <div key={i} className={`h-1 rounded-full transition-all duration-300 ${step === i ? 'w-6 bg-white' : 'w-2 bg-white/50'}`}></div>
+                                   ))}
+                                </div>
+
+                                {/* Dynamic Content */}
+                                {renderContent()}
+                            </div>
+                        </div>
+                   </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        );
+      };
+
+      // 7. Specialties & Services
+      const Specialties = () => {
+        const services = [
+          { icon: Stethoscope, title: "Consultas Médicas", desc: "Clínica Geral, Cardiologia, Pediatria, Ortopedia e mais.", id: "consultas" },
+          { icon: Activity, title: "Ultrassonografias", desc: "Tecnologia de ponta para diagnósticos precisos por imagem.", id: "ultrassom" },
+          { icon: FlaskConical, title: "Exames Laboratoriais", desc: "Coleta rápida e resultados online. Tudo no mesmo lugar.", id: "exames" },
+          { icon: Heart, title: "Cardiologia", desc: "Eletrocardiograma, risco cirúrgico e acompanhamento." },
+          { icon: CheckCircle, title: "Check-up Completo", desc: "Baterias de exames preventivos para todas as idades.", id: "checkup" },
+          { icon: Baby, title: "Pediatria", desc: "Cuidado dedicado para o desenvolvimento dos pequenos." }
+        ];
+
+        return (
+          <section id="especialidades" className="py-20 bg-white">
+            <div className="container mx-auto px-4">
+              <div className="mb-12 text-center">
+                <h2 className="text-3xl lg:text-4xl font-heading font-bold text-dale-dark mb-4">
+                  Tudo Para Sua Saúde
+                </h2>
+                <p className="text-dale-gray text-lg">
+                  De consultas a exames, resolvemos tudo aqui.
+                </p>
+              </div>
+
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {services.map((item, index) => (
+                  <div 
+                    key={index}
+                    id={item.id}
+                    className="group p-8 border border-gray-100 rounded-2xl hover:border-dale-main/50 hover:shadow-glow transition-all duration-300 cursor-pointer bg-white relative overflow-hidden"
+                  >
+                    <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                      <item.icon size={64} className="text-dale-main" />
+                    </div>
+                    
+                    <div className="w-14 h-14 mb-6 text-white bg-dale-main rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                      <item.icon size={28} />
+                    </div>
+                    <h3 className="text-xl font-bold text-dale-dark mb-3 group-hover:text-dale-main transition-colors">
+                      {item.title}
+                    </h3>
+                    <p className="text-dale-gray text-sm leading-relaxed">
+                      {item.desc}
+                    </p>
+                    <div className="mt-6 flex items-center text-dale-main font-semibold text-sm opacity-0 group-hover:opacity-100 transition-opacity transform translate-y-2 group-hover:translate-y-0">
+                      Agendar <ArrowRight size={16} className="ml-2" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+        );
+      };
+
+      // 8. Differentiators (Sobre Nós)
+      const Differentiators = () => {
+        const items = [
+          "Agendamento Instantâneo via WhatsApp",
+          "Equipe Médica de Alta Performance",
+          "Atendimento Acolhedor e Humanizado",
+          "Infraestrutura Moderna na Tijuca",
+          "Resultados de Exames Online",
+          "Preços Acessíveis"
+        ];
+
+        return (
+          <section id="sobre" className="py-20 bg-dale-light/50">
+            <div className="container mx-auto px-4">
+              <div className="flex flex-col lg:flex-row items-center gap-16">
+                
+                <div className="w-full lg:w-1/2 order-2 lg:order-1">
+                  <h2 className="text-3xl lg:text-4xl font-heading font-bold text-dale-dark mb-6">
+                    A Dale Saúde é Diferente
+                  </h2>
+                  <p className="text-dale-gray mb-8">
+                    Nascemos para descomplicar a saúde no Rio de Janeiro. Acreditamos que qualidade técnica e atendimento carinhoso devem andar juntos.
+                  </p>
+
+                  <div className="grid sm:grid-cols-2 gap-y-4 gap-x-8">
+                    {items.map((item, index) => (
+                      <div key={index} className="flex gap-3">
+                        <div className="flex-shrink-0 mt-1 text-dale-secondary">
+                          <CheckCircle2 size={20} />
+                        </div>
+                        <span className="text-dale-text font-medium text-sm">{item}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="mt-10">
+                    <Button variant="primary" href={WHATSAPP_LINK}>
+                      Conhecer a Unidade
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="w-full lg:w-1/2 order-1 lg:order-2">
+                   <div className="relative rounded-2xl overflow-hidden shadow-2xl border-4 border-white">
+                     <img 
+                       src="https://res.cloudinary.com/doqw5aqcf/image/upload/v1768056412/recepcao-dalesaude_xwxpib.webp" 
+                       alt="Recepção da clínica Dale Saúde" 
+                       className="w-full h-auto object-cover transform hover:scale-105 transition-transform duration-700"
+                     />
+                   </div>
+                </div>
+
+              </div>
+            </div>
+          </section>
+        );
+      };
+
+      // 9. FAQ
+      const FAQ = () => {
+        const [openIndex, setOpenIndex] = useState(0);
+        const questions = [
+          { q: "Como agendar?", a: "Basta clicar no botão do WhatsApp. Você fala direto com nossa central." },
+          { q: "Onde fica a clínica?", a: "Rua Uruguai, 147 - Tijuca, Rio de Janeiro. Perto do metrô Uruguai." },
+          { q: "Aceita convênios?", a: "Trabalhamos com sistema de reembolso e valores particulares acessíveis. Consulte nossa equipe." },
+          { q: "Qual o horário de funcionamento?", a: "Segunda a Sexta das 7h às 18h. Sábados das 7h às 12h." },
+        ];
+
+        return (
+          <section className="py-20 bg-white">
+            <div className="container mx-auto px-4 max-w-3xl">
+              <h2 className="text-3xl font-heading font-bold text-dale-dark mb-12 text-center">
+                Dúvidas Frequentes
+              </h2>
+              <div className="space-y-4">
+                {questions.map((item, index) => (
+                  <div key={index} className="border border-gray-100 rounded-xl overflow-hidden bg-dale-bg">
+                    <button 
+                      onClick={() => setOpenIndex(openIndex === index ? -1 : index)}
+                      className="w-full px-6 py-4 flex items-center justify-between text-left focus:outline-none hover:bg-gray-50 transition-colors"
+                    >
+                      <span className="font-semibold text-dale-dark">{item.q}</span>
+                      {openIndex === index ? <Minus size={20} className="text-dale-main" /> : <Plus size={20} className="text-gray-400" />}
+                    </button>
+                    {openIndex === index && (
+                      <div className="px-6 pb-4 text-dale-gray text-sm leading-relaxed animate-fade-in-up">
+                        {item.a}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+        );
+      };
+
+      // 10. FinalCTA
+      const FinalCTA = () => {
+        return (
+          <section className="py-24 bg-dale-main relative overflow-hidden text-center">
+             <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/diamond-upholstery.png')] opacity-5"></div>
+             <div className="container mx-auto px-4 relative z-10">
+                <div className="bg-white/10 backdrop-blur-sm inline-flex items-center gap-2 px-4 py-2 rounded-full text-white mb-6 border border-white/20">
+                  <Calendar size={16} />
+                  <span className="font-semibold text-sm">Confira horários disponíveis</span>
+                </div>
+                
+                <h2 className="text-3xl lg:text-5xl font-heading font-bold text-white mb-6">
+                  Pronto Para Cuidar da Sua Saúde?
+                </h2>
+                <p className="text-blue-100 text-lg mb-8 max-w-2xl mx-auto">
+                  Agende agora e sinta a diferença de ser atendido na Dale Saúde.
+                </p>
+
+                <Button variant="whatsapp" size="lg" className="scale-110 shadow-2xl" href={WHATSAPP_LINK}>
+                  <MessageCircle className="mr-2" /> Agendar Minha Consulta Agora
+                </Button>
+             </div>
+          </section>
+        );
+      };
+
+      // 11. Footer
+      const Footer = () => {
+        return (
+          <footer className="bg-dale-footer text-slate-300 pt-16 pb-8 text-sm">
+            <div className="container mx-auto px-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
+                
+                {/* Brand */}
+                <div>
+                  <div className="flex items-center gap-2 mb-6 text-white">
+                    <div className="w-8 h-8 bg-dale-main rounded-lg flex items-center justify-center font-bold">D</div>
+                    <span className="text-xl font-heading font-bold">Dale<span className="text-dale-main">Saúde</span></span>
+                  </div>
+                  <p className="mb-6 text-slate-400">
+                    Cuidado médico de qualidade com a praticidade que você merece na Tijuca.
+                  </p>
+                  <div className="flex gap-4">
+                    <a href="https://www.instagram.com/dalesaude" target="_blank" className="hover:text-dale-main transition-colors"><Instagram size={24} /></a>
+                    <a href="https://tiktok.com/@dalesaude_" target="_blank" className="hover:text-dale-main transition-colors flex items-center gap-1"><TikTokIcon size={24} /></a>
+                  </div>
+                </div>
+
+                {/* Nav */}
+                <div>
+                  <h4 className="text-white font-bold mb-6 uppercase tracking-wider text-xs">Menu</h4>
+                  <ul className="space-y-3">
+                    <li><a href="#" className="hover:text-white transition-colors">Home</a></li>
+                    <li><a href="#consultas" className="hover:text-white transition-colors">Consultas</a></li>
+                    <li><a href="#ultrassom" className="hover:text-white transition-colors">Ultrassonografias</a></li>
+                    <li><a href="#checkup" className="hover:text-white transition-colors">Check-up</a></li>
+                    <li><a href="#sobre" className="hover:text-white transition-colors">Sobre Nós</a></li>
+                  </ul>
+                </div>
+
+                {/* Contact */}
+                <div className="lg:col-span-2">
+                  <h4 className="text-white font-bold mb-6 uppercase tracking-wider text-xs">Fale Conosco</h4>
+                  <ul className="space-y-4">
+                    <li className="flex items-start gap-3">
+                      <MapPin size={18} className="text-dale-main mt-1 shrink-0" />
+                      <a href={ADDRESS_LINK} target="_blank" className="hover:text-white transition-colors">
+                        Rua Uruguai, 147 - Tijuca, Rio de Janeiro - RJ, 20510-060
+                      </a>
+                    </li>
+                    <li className="flex items-center gap-3">
+                      <MessageCircle size={18} className="text-dale-main shrink-0" />
+                      <a href={WHATSAPP_LINK} className="hover:text-white transition-colors">{WHATSAPP_DISPLAY}</a>
+                    </li>
+                    <li className="flex items-center gap-3">
+                      <Phone size={18} className="text-dale-main shrink-0" />
+                      <a href={`tel:${WHATSAPP_NUMBER}`} className="hover:text-white transition-colors">{WHATSAPP_DISPLAY}</a>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <Clock size={18} className="text-dale-main mt-1 shrink-0" />
+                      <span>Seg a Sex 7h às 18h<br/>Sáb 7h às 12h</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              <div className="border-t border-slate-800 pt-8 flex flex-col md:flex-row justify-between items-center text-xs text-slate-500 gap-4">
+                <div className="text-center md:text-left">
+                  <p>&copy; 2025 Dale Saúde. Todos os direitos reservados.</p>
+                  <p className="mt-1">CNPJ: 39.366.119/0001-18</p>
+                </div>
+                <div>
+                  Desenvolvido por <a href="http://altmakers.com.br/" target="_blank" className="text-dale-main hover:underline">Altmakers</a>
+                </div>
+              </div>
+            </div>
+          </footer>
+        );
+      };
+
+      // 12. WhatsApp Float
+      const WhatsAppFloat = () => {
+        const [visible, setVisible] = useState(false);
+        useEffect(() => {
+          const handleScroll = () => setVisible(window.scrollY > 300);
+          window.addEventListener('scroll', handleScroll);
+          return () => window.removeEventListener('scroll', handleScroll);
+        }, []);
+
+        if (!visible) return null;
+
+        return (
+          <a 
+            href={WHATSAPP_LINK}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="fixed bottom-6 right-6 z-50 bg-[#25D366] text-white p-4 rounded-full shadow-lg hover:shadow-green-500/50 transform hover:scale-110 transition-all duration-300 flex items-center gap-2 group animate-bounce-subtle"
+            aria-label="Agendar via WhatsApp"
+          >
+            <MessageCircle size={32} />
+            <span className="max-w-0 overflow-hidden group-hover:max-w-xs transition-all duration-500 ease-in-out whitespace-nowrap font-bold">
+              Agendar
+            </span>
+            <span className="absolute inset-0 rounded-full border border-[#25D366] animate-ping opacity-75 pointer-events-none"></span>
+          </a>
+        );
+      };
+
+      // --- MAIN APP ---
+      const App = () => {
+        return (
+          <div className="min-h-screen bg-white text-dale-text font-sans selection:bg-dale-main selection:text-white">
+            <Header />
+            <main>
+              <Hero />
+              <Stats />
+              <HowItWorks />
+              <DalePlus />
+              <Specialties />
+              <Differentiators />
+              <FAQ />
+              <FinalCTA />
+            </main>
+            <Footer />
+            <WhatsAppFloat />
+          </div>
+        );
+      };
+
+      const root = createRoot(document.getElementById('root'));
+      root.render(<App />);
+    </script>
+  </body>
+</html>
