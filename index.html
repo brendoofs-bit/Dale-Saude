@@ -3,8 +3,8 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Dale Saúde - Clínica Médica na Tijuca</title>
-    <meta name="description" content="Clínica médica popular na Tijuca. Consultas e exames com preço acessível para quem não tem plano de saúde. Agende para o mesmo dia.">
+    <title>Dale Saúde - Excelência Médica na Tijuca</title>
+    <meta name="description" content="Clínica médica de referência na Tijuca. Consultas e exames com agilidade, conforto e atendimento humanizado. Agende para o mesmo dia.">
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -98,14 +98,17 @@
 
     <!-- Import Map Cleaned (Fixes Error #31 and Version Conflicts) -->
     <script type="importmap">
-    {
-      "imports": {
-        "react": "https://esm.sh/react@18.2.0",
-        "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
-        "lucide-react": "https://esm.sh/lucide-react@0.263.1"
-      }
-    }
-    </script>
+{
+  "imports": {
+    "react": "https://esm.sh/react@18.2.0",
+    "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
+    "lucide-react": "https://esm.sh/lucide-react@0.263.1",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+    "react/": "https://esm.sh/react@^19.2.4/",
+    "react-router-dom": "https://esm.sh/react-router-dom@^7.13.0"
+  }
+}
+</script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   </head>
   <body class="text-dale-text font-sans">
@@ -119,7 +122,7 @@
         ShieldCheck, CheckCircle2, Users, Star, Stethoscope, 
         MessageSquare, Calendar, CheckCircle, Heart, Brain, Baby, 
         Activity, FlaskConical, Instagram, MapPin, Mail, Minus, Plus,
-        Sparkles, Hand, Percent, Wallet, Building2
+        Sparkles, Hand, Percent, Wallet, Building2, Crown
       } from 'lucide-react';
 
       // --- UTILS & CONSTANTS ---
@@ -221,10 +224,10 @@
                 ))}
               </nav>
 
-              {/* Desktop CTA - Foco em Telefone */}
+              {/* Desktop CTA */}
               <div className="hidden lg:flex items-center gap-4">
                 <div className="hidden xl:flex flex-col items-end text-right mr-2">
-                  <span className="text-xs text-dale-gray">Agende agora</span>
+                  <span className="text-xs text-dale-gray">Atendimento Particular</span>
                   <span className="font-bold text-dale-main text-lg leading-none">{PHONE_DISPLAY}</span>
                 </div>
                 <Button variant="cta" size="sm" icon={Phone} href={`tel:${PHONE_NUMBER_RAW}`}>
@@ -271,17 +274,17 @@
                 <div className="w-full lg:w-1/2 space-y-8 animate-fade-in-up z-10">
                   <div className="inline-flex items-center gap-2 bg-dale-accent text-dale-secondary px-4 py-2 rounded-full text-sm font-semibold border border-green-100">
                     <MapPin size={16} />
-                    <span>Exclusivo na Tijuca - Rio de Janeiro</span>
+                    <span>Referência na Tijuca - Rio de Janeiro</span>
                   </div>
 
                   <h1 className="font-heading text-4xl lg:text-5xl xl:text-6xl font-bold text-dale-dark leading-tight">
-                    Sem Plano de Saúde?<br />
-                    <span className="text-dale-main">Saúde de Qualidade</span><br />
-                    que Cabe no Bolso.
+                    Sua Saúde Merece <br />
+                    <span className="text-dale-main">Excelência e Agilidade</span><br />
+                    na Tijuca.
                   </h1>
 
                   <p className="text-xl text-dale-gray font-light max-w-lg leading-relaxed">
-                    Clínica médica completa com preços populares. Consultas e exames com agendamento rápido, muitas vezes para o <strong>mesmo dia</strong>.
+                    Consultas e exames com atendimento humanizado, sem a burocracia dos convênios e com a atenção que você precisa.
                   </p>
                   
                   <div className="flex flex-col sm:flex-row gap-4 pt-4">
@@ -289,14 +292,14 @@
                       Ligar: {PHONE_DISPLAY}
                     </Button>
                     <Button variant="outline" size="lg" icon={Calendar} href="#consultas">
-                      Ver Especialidades
+                      Nossas Especialidades
                     </Button>
                   </div>
 
                   <div className="pt-6 flex flex-wrap gap-6 text-sm text-dale-gray font-medium border-t border-gray-100">
                     <span className="flex items-center gap-2">
-                      <Wallet size={18} className="text-dale-secondary" />
-                      Melhor custo-benefício
+                      <ShieldCheck size={18} className="text-dale-secondary" />
+                      Transparência Total
                     </span>
                     <span className="flex items-center gap-2">
                       <Clock size={18} className="text-dale-secondary" />
@@ -319,11 +322,11 @@
                    {/* Floating Badge */}
                    <div className="absolute top-10 right-0 z-20 bg-white p-4 rounded-xl shadow-card flex items-center gap-3 animate-float border border-gray-50">
                       <div className="bg-dale-light p-3 rounded-full text-dale-main">
-                        <ShieldCheck size={24} />
+                        <Crown size={24} />
                       </div>
                       <div>
-                        <p className="text-xs text-dale-gray uppercase tracking-wider font-bold">Estrutura</p>
-                        <p className="font-bold text-dale-dark">De Ponta</p>
+                        <p className="text-xs text-dale-gray uppercase tracking-wider font-bold">Padrão</p>
+                        <p className="font-bold text-dale-dark">Premium</p>
                       </div>
                    </div>
                 </div>
@@ -350,15 +353,15 @@
                 <div className="flex items-center gap-4 p-4 border-b md:border-b-0 md:border-r border-white/10">
                   <Wallet size={40} className="text-dale-secondary shrink-0" />
                   <div>
-                    <h3 className="font-bold text-lg">Preço Justo</h3>
-                    <p className="text-white/80 text-sm">Qualidade que cabe no bolso.</p>
+                    <h3 className="font-bold text-lg">Valor Justo</h3>
+                    <p className="text-white/80 text-sm">Investimento certo na sua saúde.</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-4 p-4 border-b md:border-b-0 md:border-r border-white/10">
                   <Clock size={40} className="text-dale-secondary shrink-0" />
                   <div>
                     <h3 className="font-bold text-lg">Rapidez</h3>
-                    <p className="text-white/80 text-sm">Vagas para o mesmo dia.</p>
+                    <p className="text-white/80 text-sm">Vagas disponíveis para hoje.</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-4 p-4">
@@ -374,7 +377,7 @@
         );
       };
 
-      // 5. Dale+ (Interactive Phone - Updated Colors)
+      // 5. Dale+ (Interactive Phone - Updated Copy)
       const DalePlus = () => {
         const [step, setStep] = useState(0);
 
@@ -391,7 +394,7 @@
                        <span className="text-4xl font-bold text-white">D</span>
                    </div>
                    <span className="text-3xl font-heading font-bold text-white mb-2">Dale<span className="text-dale-secondary">+</span></span>
-                   <p className="text-white/80 text-sm mb-8 text-center">Clube de vantagens exclusivo.</p>
+                   <p className="text-white/80 text-sm mb-8 text-center">Seu Clube de Benefícios.</p>
                    <div className="mt-4 flex flex-col items-center animate-tap-hint">
                       <Hand size={32} className="text-white mb-2" />
                       <span className="text-xs uppercase tracking-widest text-white/70">Toque para conhecer</span>
@@ -404,8 +407,8 @@
                    <div className="w-16 h-16 bg-dale-secondary rounded-full flex items-center justify-center mb-6 shadow-glow text-white">
                        <Percent size={32} />
                    </div>
-                   <h3 className="text-2xl font-bold text-white mb-2">Preços Reduzidos</h3>
-                   <p className="text-white/80 text-sm">Descontos agressivos em consultas e exames para assinantes.</p>
+                   <h3 className="text-2xl font-bold text-white mb-2">Condições Especiais</h3>
+                   <p className="text-white/80 text-sm">Tabelas e pacotes exclusivos em consultas e exames para membros.</p>
                    <div className="mt-12 text-white/50 text-xs">Toque para continuar</div>
                 </div>
               );
@@ -425,7 +428,7 @@
                 <div className="flex flex-col items-center justify-center h-full animate-fade-in-up text-center px-6">
                    <Sparkles size={48} className="text-dale-secondary mb-6" />
                    <h3 className="text-3xl font-heading font-bold text-white mb-4">Em Breve</h3>
-                   <p className="text-white/80 text-sm mb-8">Estamos finalizando o maior clube de saúde popular do RJ.</p>
+                   <p className="text-white/80 text-sm mb-8">Estamos finalizando o maior clube de benefícios em saúde do RJ.</p>
                    <div className="mt-8 text-white/30 text-[10px] uppercase cursor-pointer hover:text-white" onClick={(e) => {e.stopPropagation(); setStep(0);}}>
                       Reiniciar Tour
                    </div>
@@ -447,9 +450,9 @@
                     Vem aí o <span className="text-transparent bg-clip-text bg-gradient-to-r from-dale-main to-dale-secondary">Dale+</span>
                   </h2>
                   <p className="text-lg text-gray-300 mb-8 max-w-2xl">
-                    Uma nova forma de se cuidar. Em breve lançaremos nosso 
+                    Uma nova experiência em cuidados. Em breve lançaremos nosso 
                     <strong className="text-white"> clube de vantagens</strong>. 
-                    Ideal para quem não tem plano e quer pagar ainda menos.
+                    Ideal para quem busca prioridade e exclusividade.
                   </p>
                   <Button variant="secondary" href={WHATSAPP_LINK}>
                     Entrar na Lista de Espera
@@ -485,12 +488,12 @@
       // 6. Specialties & Services
       const Specialties = () => {
         const services = [
-          { icon: Stethoscope, title: "Clínica Geral", desc: "Consultas de rotina e diagnósticos rápidos." },
-          { icon: Activity, title: "Ultrassonografia", desc: "Equipamentos modernos e laudos precisos.", id: "ultrassom" },
-          { icon: FlaskConical, title: "Exames de Sangue", desc: "Laboratório parceiro para seus exames de rotina." },
-          { icon: Heart, title: "Cardiologia", desc: "Eletrocardiograma e risco cirúrgico." },
-          { icon: CheckCircle, title: "Check-up", desc: "Pacotes preventivos com preços especiais.", id: "checkup" },
-          { icon: Baby, title: "Pediatria", desc: "Atenção especializada para saúde infantil." }
+          { icon: Stethoscope, title: "Clínica Geral", desc: "Consultas detalhadas e abordagem integral." },
+          { icon: Activity, title: "Ultrassonografia", desc: "Equipamentos de alta resolução para diagnósticos precisos.", id: "ultrassom" },
+          { icon: FlaskConical, title: "Exames Laboratoriais", desc: "Coleta e análise com padrões rigorosos de qualidade." },
+          { icon: Heart, title: "Cardiologia", desc: "Cuidado especializado para a saúde do seu coração." },
+          { icon: CheckCircle, title: "Check-up Executivo", desc: "Baterias de exames completas e otimizadas.", id: "checkup" },
+          { icon: Baby, title: "Pediatria", desc: "Atenção especializada e carinhosa para os pequenos." }
         ];
 
         return (
@@ -498,10 +501,10 @@
             <div className="container-boxed px-4">
               <div className="mb-12 text-center">
                 <h2 className="text-3xl lg:text-4xl font-heading font-bold text-dale-dark mb-4">
-                  Tudo Para Sua Saúde em Um Só Lugar
+                  Especialidades e Exames
                 </h2>
                 <p className="text-dale-gray text-lg max-w-2xl mx-auto">
-                  Oferecemos diversas especialidades médicas e exames. Resolva sua vida sem filas de hospital.
+                  Corpo clínico altamente qualificado e tecnologia de ponta em um só lugar.
                 </p>
               </div>
 
@@ -535,12 +538,12 @@
       // 7. Why Us (Sobre Nós)
       const Differentiators = () => {
         const items = [
-          "Preço Popular e Acessível",
-          "Atendimento Exclusivo na Tijuca",
+          "Agilidade no Agendamento",
+          "Localização Premium na Tijuca",
           "Estrutura Moderna e Climatizada",
           "Agendamento para o Mesmo Dia",
-          "Equipe Médica Especializada",
-          "Sem mensalidades ou carência"
+          "Corpo Clínico de Excelência",
+          "Sem Mensalidades"
         ];
 
         return (
@@ -550,10 +553,10 @@
                 
                 <div className="w-full lg:w-1/2 order-2 lg:order-1">
                   <h2 className="text-3xl lg:text-4xl font-heading font-bold text-dale-dark mb-6">
-                    A Melhor Opção para Quem Não Tem Plano
+                    Excelência Médica ao Seu Alcance
                   </h2>
                   <p className="text-dale-gray mb-8 text-lg">
-                    A Dale Saúde nasceu para preencher a lacuna deixada pelo SUS e pelos planos de saúde caros. Somos uma clínica particular com preços populares, localizada estrategicamente na Tijuca.
+                    A Dale Saúde foi criada para oferecer uma experiência superior em cuidados médicos. Acreditamos que o atendimento particular deve ser ágil, resolutivo e transparente, sem a complexidade dos grandes hospitais.
                   </p>
 
                   <div className="grid sm:grid-cols-2 gap-y-4 gap-x-8">
@@ -653,7 +656,7 @@
                 </div>
                 
                 <h2 className="text-3xl lg:text-5xl font-heading font-bold text-white mb-6">
-                  Cuide da sua saúde sem gastar muito
+                  Cuide da sua saúde com a prioridade que ela exige
                 </h2>
                 <p className="text-blue-100 text-lg mb-8 max-w-2xl mx-auto">
                   Ligue agora e garanta sua consulta. Nossa equipe está pronta para te atender com carinho e agilidade.
@@ -686,7 +689,7 @@
                     <span className="text-xl font-heading font-bold">Dale<span className="text-dale-main">Saúde</span></span>
                   </div>
                   <p className="mb-6 text-slate-400">
-                    Clínica médica popular referência na Tijuca. Qualidade, preço justo e respeito ao paciente.
+                    Clínica médica de referência na Tijuca. Qualidade, transparência e respeito ao paciente.
                   </p>
                   <div className="flex gap-4">
                     <a href="https://www.instagram.com/dalesaude" target="_blank" className="hover:text-dale-main transition-colors"><Instagram size={24} /></a>
